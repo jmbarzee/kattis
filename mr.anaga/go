@@ -1,0 +1,63 @@
+3 2
+me
+em
+to
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"sort"
+	"strconv"
+	"strings"
+)
+
+func main() {
+	m := make(map[string]int)
+	r := bufio.NewReader(os.Stdin)
+	n := ReadConstraintN(r)
+	for i := 0; i < n; i++ {
+		line, err := r.ReadBytes('\n')
+		if err != nil {
+			panic(err)
+		}
+		sorted := SortString(string(line))
+		m[sorted]++
+	}
+
+	count := 0
+	for _, i := range m {
+		if i == 1 {
+			count++
+		}
+	}
+
+	fmt.Println(count)
+
+}
+
+func ReadConstraintN(r *bufio.Reader) int {
+	line, err := r.ReadBytes('\n')
+	if err != nil {
+		panic(err)
+	}
+	s := strings.Split(string(line), " ")[0]
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		panic(err)
+	}
+	return i
+}
+
+func SortString(s string) string {
+	r := []rune(s)
+	sort.Sort(sortChars(r))
+	return string(r)
+}
+
+type sortChars []rune
+
+func (s sortChars) Less(i, j int) bool { return s[i] < s[j] }
+func (s sortChars) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s sortChars) Len() int           { return len(s) }
