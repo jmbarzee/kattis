@@ -10,17 +10,42 @@ import (
 )
 
 func main() {
-	stars, distance := fetchStarsAndDistance(os.Stdin)
-	count, err := FindHalfGalaxyCount(stars, distance)
-	if err != nil {
+	points, distance := fetchStarsAndDistance(os.Stdin)
+	count := FindHalfGalaxyCount(points, distance)
+	if count == 0 {
 		fmt.Println("NO")
 	} else {
 		fmt.Println(count)
 	}
 }
 
-func FindHalfGalaxyCount(stars *StarList, distance int64) (int, error) {
-	half := stars.Len / 2
+func FindHalfGalaxyCount(points []Point, distance int64) int {
+	half := len(points) / 2
+	PointsByX := splitByX(points, distance, half)
+	// TODO @jmbarzee speed up by stoping after visiting more than half
+	for _, plx := range PointsByX {
+		pointsByY := splitByY(plx, distance, half)
+		for _, ply := range pointsByY {
+
+			n := FindHalfGalaxyCountSub(ply, distance, half)
+			if n != 0 {
+				return n
+			} else {
+				return 0
+			}
+		}
+	}
+	return 0
+}
+
+func FindHalfGalaxyCountSub(points []Point, distance int64, half int) int {
+	stars := NewStarList()
+	for _, p := range points {
+		stars.Append(&Star{
+			Point: p,
+		})
+	}
+
 	for i := 0; i < stars.Len; i++ {
 		star := stars.Head
 		stars.Remove(star)
@@ -36,20 +61,20 @@ func FindHalfGalaxyCount(stars *StarList, distance int64) (int, error) {
 			}
 		}
 		if starsFound > half {
-			return starsFound, nil
+			return starsFound
 		}
 		if stars.Len <= half {
-			return 0, fmt.Errorf("Not Enough Stars Remaining to find half.")
+			return 0
 		}
 	}
-	return 0, fmt.Errorf("Reached end of Universe. Something went wrong.")
+	return 0
 }
 
 // fetchStarsAndDistance gathers input from stdin
-func fetchStarsAndDistance(r io.Reader) (*StarList, int64) {
+func fetchStarsAndDistance(r io.Reader) ([]Point, int64) {
 	bufR := bufio.NewReader(r)
 	d, n := ReadConstraints(bufR)
-	stars := NewStarList()
+	points := make([]Point, n)
 	for i := 0; i < n; i++ {
 		line, err := bufR.ReadBytes('\n')
 		if err != nil {
@@ -65,13 +90,13 @@ func fetchStarsAndDistance(r io.Reader) (*StarList, int64) {
 		if err != nil {
 			panic(err)
 		}
-		stars.Append(&Star{
+		points[i] = Point{
 			X: int64(x),
 			Y: int64(y),
-		})
+		}
 
 	}
-	return stars, int64(d)
+	return points, int64(d)
 }
 
 // ReadConstraints fetches constraints from the first line

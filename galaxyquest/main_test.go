@@ -15,7 +15,7 @@ func TestFindHalfGalaxyCount(t *testing.T) {
 			t.Error(err)
 		}
 		stars, distance := fetchStarsAndDistance(f)
-		count, _ := FindHalfGalaxyCount(stars, distance)
+		count := FindHalfGalaxyCount(stars, distance)
 		if count != c.result {
 			t.Errorf("TestCase:%v Failed \n\texpected:%v \n\tresult:%v", i, c.result, count)
 		}
@@ -37,22 +37,34 @@ func testFindHalfGalaxyCountProvider() []testCase {
 			result:   4,
 			fileName: "tests/1.test",
 		},
-		// testCase{
-		// 	result:   1,
-		// 	fileName: "tests/2.test",
-		// },
-		// testCase{
-		// 	result:   0,
-		// 	fileName: "tests/3.test",
-		// },
-		// testCase{
-		// 	result:   3,
-		// 	fileName: "tests/4.test",
-		// },
-		// testCase{
-		// 	result:   1,
-		// 	fileName: "tests/5.test",
-		// },
+		testCase{
+			result:   0,
+			fileName: "tests/2.test",
+		},
+		testCase{
+			result:   3,
+			fileName: "tests/3.test",
+		},
+		testCase{
+			result:   3,
+			fileName: "tests/4.test",
+		},
+		testCase{
+			result:   0,
+			fileName: "tests/5.test",
+		},
+		testCase{
+			result:   2,
+			fileName: "tests/6.test",
+		},
+		testCase{
+			result:   3,
+			fileName: "tests/7.test",
+		},
+		testCase{
+			result:   0,
+			fileName: "tests/8.test",
+		},
 	}
 	return cases
 }
