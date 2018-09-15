@@ -10,26 +10,13 @@ import (
 	"strings"
 )
 
-func main() {
-	c := Anagrams(os.Stdin)
-	fmt.Println(c)
-}
-
-// Anagrams exits exclusivly for testing purposes. Otherwise, everything would be in main()
-func Anagrams(r io.Reader) int {
+// Anagrams is returns the number or words which didn't share a character set with another word
+func Anagrams(words []string) int {
 	m := make(map[string]int)
-
-	bufR := bufio.NewReader(r)
-	n := ReadConstraintN(bufR)
-	for i := 0; i < n; i++ {
-		line, err := bufR.ReadBytes('\n')
-		if err != nil {
-			panic(err)
-		}
-		sorted := SortString(string(line))
+	for _, w := range words {
+		sorted := SortString(w)
 		m[sorted]++
 	}
-
 	count := 0
 	for _, i := range m {
 		if i == 1 {
@@ -37,20 +24,6 @@ func Anagrams(r io.Reader) int {
 		}
 	}
 	return count
-}
-
-// ReadConstraintN fetches N from the first line
-func ReadConstraintN(r *bufio.Reader) int {
-	line, err := r.ReadBytes('\n')
-	if err != nil {
-		panic(err)
-	}
-	s := strings.Split(string(line), " ")[0]
-	i, err := strconv.Atoi(s)
-	if err != nil {
-		panic(err)
-	}
-	return i
 }
 
 // SortString plays ping pong and drives a 1950's sports car.
@@ -65,3 +38,39 @@ type sortChars []rune
 func (s sortChars) Less(i, j int) bool { return s[i] < s[j] }
 func (s sortChars) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 func (s sortChars) Len() int           { return len(s) }
+
+// =============== Implementations for Kattis ================
+func main() {
+	c := AnagramsReader(os.Stdin)
+	fmt.Println(c)
+}
+
+// AnagramsReader is a wrapper around Anagrams
+func AnagramsReader(r io.Reader) int {
+	bufR := bufio.NewReader(r)
+	n := ReadConstraintN(bufR)
+	words := make([]string, n)
+	for i := 0; i < n; i++ {
+		line, err := bufR.ReadBytes('\n')
+		if err != nil {
+			panic(err)
+		}
+		words[i] = string(line)
+	}
+	return Anagrams(words)
+}
+
+// ReadConstraintN fetches N from the first line
+func ReadConstraintN(r *bufio.Reader) int {
+	line, err := r.ReadBytes('\n')
+	if err != nil {
+		panic(err)
+	}
+	s := strings.Split(string(line), " ")
+
+	i, err := strconv.Atoi(s[0])
+	if err != nil {
+		panic(err)
+	}
+	return i
+}
