@@ -8,13 +8,29 @@ import (
 	"strings"
 )
 
+var cache [][][]int
+
 func Solve(r io.Reader, w io.Writer) {
 	bufR := bufio.NewReader(r)
 
 	rooms, k := FetchRows(bufR)
 	fmt.Printf("rooms:\n%v\n", rooms)
-	maxVal := maxValue(rooms, 0, -1, k)
-
+	cache = make([][][]int, len(rooms))
+	for r := range cache {
+		cache[r] = make([][]int, k+1)
+		for j := range cache[r] {
+			cache[r][j] = make([]int, 3)
+		}
+	}
+	maxVal := 0
+	for r := len(cache) - 1; r >= 0; r-- {
+		for kk := range cache[r] {
+			for un := range cache[r][kk] {
+				cache[r][kk][un] = maxValue(rooms, r, un-1, kk)
+			}
+		}
+	}
+	maxVal = cache[0][k][0]
 	fmt.Fprintf(w, "%v\n", maxVal)
 }
 
@@ -79,7 +95,8 @@ func maxValue(rooms [][]int, r, uncloseableRoom, k int) int {
 		}
 
 	} else {
-		panic(fmt.Errorf("Need to close more rooms, maxValue(..., %v, %v, %v)", r, uncloseableRoom, k))
+		ret = 0
+		// panic(fmt.Errorf("Need to close more rooms, maxValue(..., %v, %v, %v)", r, uncloseableRoom, k))
 	}
 
 	for i := 0; i < r; i++ {

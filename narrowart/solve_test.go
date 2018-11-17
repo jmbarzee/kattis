@@ -61,7 +61,7 @@ type testCase struct {
 
 func testSolveProvider(t *testing.T) []testCase {
 
-	manualTests := make([]testCase, 4)
+	manualTests := make([]testCase, 1)
 	for i := range manualTests {
 		inName := fmt.Sprintf("tests/manual/%v.input", i)
 		inFile, err := os.Open(inName)
