@@ -1,12 +1,17 @@
-package rainbow
+package main
 
 import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"strconv"
 	"strings"
 )
+
+func main() {
+	Solve(os.Stdin, os.Stdout)
+}
 
 var cache [][][]int
 
@@ -45,14 +50,16 @@ func maxValue(rooms [][]int, r, uncloseableRoom, k int) int {
 	}
 	fmt.Printf("maxValue(..., %v, %v, %v)\n", r, uncloseableRoom, k)
 
-	if k == len(rooms)-1-r {
+	if k == 0 {
+		ret = rooms[r][0] + rooms[r][1] + cache[r+1][k][0]
+	} else if k == len(rooms)-1-r {
 		if uncloseableRoom == 1 {
-			ret = rooms[r][1] + maxValue(rooms, r+1, 1, k-1)
+			ret = rooms[r][1] + cache[r+1][k-1][2]
 		} else if uncloseableRoom == 0 {
-			ret = rooms[r][0] + maxValue(rooms, r+1, 0, k-1)
+			ret = rooms[r][0] + cache[r+1][k-1][1]
 		} else if uncloseableRoom == -1 {
-			max1 := rooms[r][0] + maxValue(rooms, r+1, 0, k-1)
-			max2 := rooms[r][1] + maxValue(rooms, r+1, 1, k-1)
+			max1 := rooms[r][0] + cache[r+1][k-1][1]
+			max2 := rooms[r][1] + cache[r+1][k-1][2]
 			if max1 > max2 {
 				ret = max1
 			} else {
@@ -64,25 +71,25 @@ func maxValue(rooms [][]int, r, uncloseableRoom, k int) int {
 
 	} else if k < len(rooms)-1-r {
 		if uncloseableRoom == 1 {
-			max1 := rooms[r][1] + maxValue(rooms, r+1, 1, k-1)
-			max2 := rooms[r][0] + rooms[r][1] + maxValue(rooms, r+1, -1, k)
+			max1 := rooms[r][1] + cache[r+1][k-1][2]
+			max2 := rooms[r][0] + rooms[r][1] + cache[r+1][k][0]
 			if max1 > max2 {
 				ret = max1
 			} else {
 				ret = max2
 			}
 		} else if uncloseableRoom == 0 {
-			max1 := rooms[r][0] + maxValue(rooms, r+1, 0, k-1)
-			max2 := rooms[r][0] + rooms[r][1] + maxValue(rooms, r+1, -1, k)
+			max1 := rooms[r][0] + cache[r+1][k-1][1]
+			max2 := rooms[r][0] + rooms[r][1] + cache[r+1][k][0]
 			if max1 > max2 {
 				ret = max1
 			} else {
 				ret = max2
 			}
 		} else if uncloseableRoom == -1 {
-			max1 := rooms[r][0] + maxValue(rooms, r+1, 0, k-1)
-			max2 := rooms[r][0] + rooms[r][1] + maxValue(rooms, r+1, -1, k)
-			max3 := rooms[r][1] + maxValue(rooms, r+1, 1, k-1)
+			max1 := rooms[r][0] + cache[r+1][k-1][1]
+			max2 := rooms[r][0] + rooms[r][1] + cache[r+1][k][0]
+			max3 := rooms[r][1] + cache[r+1][k-1][2]
 			if max1 > max2 && max1 > max3 {
 				ret = max1
 			} else if max2 > max1 && max2 > max3 {

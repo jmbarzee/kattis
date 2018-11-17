@@ -1,4 +1,4 @@
-package rainbow
+package main
 
 import (
 	"bytes"
@@ -61,7 +61,7 @@ type testCase struct {
 
 func testSolveProvider(t *testing.T) []testCase {
 
-	manualTests := make([]testCase, 1)
+	manualTests := make([]testCase, 4)
 	for i := range manualTests {
 		inName := fmt.Sprintf("tests/manual/%v.input", i)
 		inFile, err := os.Open(inName)
