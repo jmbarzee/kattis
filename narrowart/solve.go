@@ -18,25 +18,30 @@ var cache [][][]int
 func Solve(r io.Reader, w io.Writer) {
 	bufR := bufio.NewReader(r)
 
-	rooms, k := FetchRows(bufR)
-	fmt.Printf("rooms:\n%v\n", rooms)
-	cache = make([][][]int, len(rooms))
-	for r := range cache {
-		cache[r] = make([][]int, k+1)
-		for j := range cache[r] {
-			cache[r][j] = make([]int, 3)
+	for {
+		rooms, k, err := FetchRows(bufR)
+		if err != nil {
+			break
 		}
-	}
-	maxVal := 0
-	for r := len(cache) - 1; r >= 0; r-- {
-		for kk := range cache[r] {
-			for un := range cache[r][kk] {
-				cache[r][kk][un] = maxValue(rooms, r, un-1, kk)
+		// fmt.Printf("rooms:\n%v\n", rooms)
+		cache = make([][][]int, len(rooms))
+		for r := range cache {
+			cache[r] = make([][]int, k+1)
+			for j := range cache[r] {
+				cache[r][j] = make([]int, 3)
 			}
 		}
+		maxVal := 0
+		for r := len(cache) - 1; r >= 0; r-- {
+			for kk := range cache[r] {
+				for un := range cache[r][kk] {
+					cache[r][kk][un] = maxValue(rooms, r, un-1, kk)
+				}
+			}
+		}
+		maxVal = cache[0][k][0]
+		fmt.Fprintf(w, "%v\n", maxVal)
 	}
-	maxVal = cache[0][k][0]
-	fmt.Fprintf(w, "%v\n", maxVal)
 }
 
 func maxValue(rooms [][]int, r, uncloseableRoom, k int) int {
@@ -45,10 +50,10 @@ func maxValue(rooms [][]int, r, uncloseableRoom, k int) int {
 	}
 	ret := 0
 
-	for i := 0; i < r; i++ {
-		fmt.Printf("\t")
-	}
-	fmt.Printf("maxValue(..., %v, %v, %v)\n", r, uncloseableRoom, k)
+	// for i := 0; i < r; i++ {
+	// 	fmt.Printf("\t")
+	// }
+	// fmt.Printf("maxValue(..., %v, %v, %v)\n", r, uncloseableRoom, k)
 
 	if k == 0 {
 		ret = rooms[r][0] + rooms[r][1] + cache[r+1][k][0]
@@ -106,17 +111,20 @@ func maxValue(rooms [][]int, r, uncloseableRoom, k int) int {
 		// panic(fmt.Errorf("Need to close more rooms, maxValue(..., %v, %v, %v)", r, uncloseableRoom, k))
 	}
 
-	for i := 0; i < r; i++ {
-		fmt.Printf("\t")
-	}
-	fmt.Printf("=> %v\n", ret)
+	// for i := 0; i < r; i++ {
+	// 	fmt.Printf("\t")
+	// }
+	// fmt.Printf("=> %v\n", ret)
 	return ret
 }
 
 // FetchRows gathers input from stdin
-func FetchRows(r *bufio.Reader) ([][]int, int) {
+func FetchRows(r *bufio.Reader) ([][]int, int, error) {
 	const maxDistance = 30000
-	n, k := ReadConstraints(r)
+	n, k, err := ReadConstraints(r)
+	if err != nil {
+		return nil, 0, err
+	}
 	rooms := make([][]int, n+1)
 	for i := 0; i < n+1; i++ {
 		rooms[i] = make([]int, 2)
@@ -136,14 +144,14 @@ func FetchRows(r *bufio.Reader) ([][]int, int) {
 		}
 
 	}
-	return rooms, k
+	return rooms, k, nil
 }
 
 // ReadConstraints fetches n from the first line
-func ReadConstraints(r *bufio.Reader) (int, int) {
+func ReadConstraints(r *bufio.Reader) (int, int, error) {
 	line, err := r.ReadBytes('\n')
 	if err != nil {
-		panic(err)
+		return 0, 0, err
 	}
 	lineString := strings.TrimSuffix(string(line), "\n")
 	allNums := strings.Split(lineString, " ")
@@ -155,5 +163,5 @@ func ReadConstraints(r *bufio.Reader) (int, int) {
 	if err != nil {
 		panic(err)
 	}
-	return n, k
+	return n, k, nil
 }
